@@ -11,7 +11,8 @@ Base = declarative_base()
 
 followers = Table('followers', Base.metadata,
     Column('follower_id', ForeignKey('user.ID')),
-    Column('followed_id', ForeignKey('user.ID'))
+    Column('followed_id', ForeignKey('user.ID')),
+    Column('date_follow', String(10), nullable=False)
 )
 
 class User(Base):
@@ -27,7 +28,8 @@ class User(Base):
         secondaryjoin=(followers.c.followed_id == ID),
         backref=backref('followers', lazy='dynamic'),
         lazy='dynamic')
-
+    child1 = relationship("Comment")
+    child2 = relationship("Post")
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -42,11 +44,11 @@ class User(Base):
         }
 
 class Comment(Base):
-    __tablename__ = 'Comment'
+    __tablename__ = 'comment'
     ID = Column(Integer, primary_key=True)
     comment_text = Column(String(250), nullable=False)
-    author_id = Column(Integer, nullable=False)
-    post_id = Column(Integer, nullable=False)
+    author_id = Column(Integer, ForeignKey('user.ID'))
+    post_id = Column(Integer, ForeignKey('post.ID'))
 
     def __repr__(self):
         return '<Comment %r>' % self.ID
@@ -60,9 +62,11 @@ class Comment(Base):
         }
 
 class Post(Base):
-    __tablename__ = 'Post'
+    __tablename__ = 'post'
     ID = Column(Integer, primary_key=True)
-    user_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey('user.ID'))
+    child1 = relationship("Media", "Comment")
+    # child2 = relationship("Comment")
 
     def __repr__(self):
         return '<Post %r>' % self.ID
@@ -74,11 +78,11 @@ class Post(Base):
         }
 
 class Media(Base):
-    __tablename__ = 'Media'
+    __tablename__ = 'media'
     ID = Column(Integer, primary_key=True)
     type = Column(Enum('video', 'photo'), nullable=False)
     url = Column(String(250), nullable=False)
-    post_id = Column(Integer, nullable=False)
+    post_id = Column(Integer, ForeignKey('post.ID'))
 
     def __repr__(self):
         return '<Media %r>' % self.ID
