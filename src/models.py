@@ -28,8 +28,7 @@ class User(Base):
         secondaryjoin=(followers.c.followed_id == ID),
         backref=backref('followers', lazy='dynamic'),
         lazy='dynamic')
-    child1 = relationship("Comment")
-    child2 = relationship("Post")
+    children = relationship("Comment", "Post")
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -65,8 +64,7 @@ class Post(Base):
     __tablename__ = 'post'
     ID = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.ID'))
-    child1 = relationship("Media", "Comment")
-    # child2 = relationship("Comment")
+    children = relationship("Media", "Comment")
 
     def __repr__(self):
         return '<Post %r>' % self.ID
